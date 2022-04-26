@@ -19,3 +19,4 @@ def read_RNDWs_from_JSONs(path):
         with open(filename, 'r') as f:
             rndw = json.loads(f.read())
         rndws.append(rndw)
+    return rndws
