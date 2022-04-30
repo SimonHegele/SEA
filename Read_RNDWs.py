@@ -14,9 +14,9 @@ def read_RNDWs_from_JSONs(path):
     In: path to folder
     Out: List of Dictionairies from JSON-files in the folder
     """
-    rndws = []
+    data = []
     for filename in file_list(path):
         with open(filename, 'r') as f:
-            rndw = json.loads(f.read())
-        rndws.append(rndw)
-    return rndws
+            rndws = json.loads(f.read())
+        data.append(rndws)
+    return data
