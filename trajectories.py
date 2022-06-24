@@ -75,11 +75,11 @@ def plot_hasse(rndws, x, loga=False):
 
     # 2. Plot
     for index, subplot in enumerate(figure.axes):
-        x_, y_ = hasse.positions_on_grid(rndws[index], x)
+        x_p, y_p = hasse.positions_on_grid(rndws[index], x)
         subplot.plot(lb[0], lb[1], color="blue")            # Plots upper boundary of the hasse-diagram
         subplot.plot(ub[0], ub[1], color="blue")            # Plots upper boundary of the hasse-diagram
         subplot.fill_between(lb[0], lb[1] ,ub[1])           # Fill the area inbetween
-        subplot.plot(x_,y_,color="red")
+        subplot.plot(x_p,y_p,color="red")
         subplot.get_xaxis().set_visible(False)              #Plots tracectory
     if(loga):
         plt.xscale("symlog")
