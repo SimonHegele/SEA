@@ -1,101 +1,85 @@
 # This script plots the trajectories for a given set of evolutions
 
+import hasse
+import plot
 import numpy
-import Bitarrays
+import bitarrays
 import matrix
-import math
 import matplotlib.pyplot as plt
-import time
 
-# Two methods that will return functions that outline the hasse-diamond for better visualization
-
-def lower_bound_diamond(n):
-    x_center = 0
-    y_center = n
-    x_left   = []
-    x_right  = []
-    y_left   = []
-    y_right  = []
-    if n%2==0:
-        y_max = int(n/2)-1
-    else:
-         y_max = int(n/2)
-    for i in range(n-1, y_max, -1):
-        y_left.append(n-i)
-        y_right.append(n-i)
-        breadth = math.comb(n,(n-i))
-        x_left.append((-1)*breadth/2)
-        x_right.append(breadth/2)
-    x_left.reverse()
-    y_left.reverse()
-    x_left.append(0)
-    y_left.append(0)
-    return([x_left+x_right,y_left+y_right])
-
-def upper_bound_diamond(n):
-    x_center = 0
-    n_ = n
-    x_left   = []
-    x_right  = []
-    y_left   = []
-    y_right  = []
-    if n%2==0:
-        y_min = int(n/2)-1
-    else:
-         y_min = int(n/2)
-    for i in range(n-1, y_min, -1):
-        y_left.append(i)
-        y_right.append(i)
-        breadth = math.comb(n,(n-i))
-        x_left.append((-1)*breadth/2)
-        x_right.append(breadth/2)
-    x_left.reverse()
-    y_left.reverse()
-    x_left.append(0)
-    y_left.append(n)
-    return([x_left+x_right,y_left+y_right])
-
-def position_on_grid(a):
-    if(Bitarrays.number_of_ones(a)==0 or Bitarrays.number_of_ones(a)==len(a)):
-        x=0
-    else:
-        b = math.comb(len(a),Bitarrays.number_of_ones(a)) # The breadth of the hasse-diamond at the corresponding y-position
-        x = -(b/2) + Bitarrays.lexicographical_position(a)
-    y = Bitarrays.number_of_ones(a)
-    return([x,y])
-
-def plot_hasse(rndws, x, loga=False):
-    start = time.time()
-    figure, axis = plt.subplots(2,math.ceil(len(rndws)/2), sharex=True) # Two rows of plots
-    figure.suptitle("Random walks in the hasse-diagram")
-    # calculate hasse-diamond
-    lb = lower_bound_diamond(len(rndws[0][x]))
-    ub = upper_bound_diamond(len(rndws[0][x]))
-    for i in range(len(rndws)): # one plot per random walk
-        m = numpy.transpose(rndws[i][x])
-        x_positions = []
-        y_positions = []
-        for j in range(len(m)):
-            x_y_positions = position_on_grid(m[j])
-            x_positions.append(x_y_positions[0])
-            y_positions.append(x_y_positions[1])
-        axis[i%2][int(i/2)].plot(lb[0], lb[1], color="blue")
-        axis[i%2][int(i/2)].plot(ub[0], ub[1], color="blue")
-        axis[i%2][int(i/2)].fill_between(lb[0], lb[1] ,ub[1])
-        axis[i%2][int(i/2)].plot(x_positions,y_positions,color="red")
-        axis[i%2][int(i/2)].get_xaxis().set_visible(False)
-    if(loga):
-        plt.xscale("symlog")
-    print("Preparing hasse-plots: " + str(round(time.time()-start,4)) + "seconds")
-    plt.tight_layout()
+def x_(x):
+    if x ==  "a":
+        return "present species"
+    return "active species"
 
 def plot_raw(rndws, x):
-    # 1. Equal sizes for the matrix
+    '''
+    In: rndws (list), list of random walks
+        x (string), "a" to plot abstractions of present species
+                    "u" to plot abstractions of active species
+    '''
+
+    # 1. Set up subplots
+    figure, axes = plot.initialize_subplots(len(rndws))
+    plot.xlabel_subplots(figure, axes, 'steps in random walk')
+    plot.ylabel_subplots(figure, axes, 'Species index')
+    
+    # 2. Set the matrices of the random walks to an equal length
     rndws = matrix.uniform_ncol(rndws, x)
-    figure, ax = plt.subplots(2,math.ceil(len(rndws)/2)) # Two rows of plots
-    for i in range(len(rndws)): # one plot per random walk
-        ax[i%2][int(i/2)].imshow(rndws[i][x],vmin=0, vmax=1)
-        ax[i%2][int(i/2)].set_xlabel('iteration')
-    ax[0][0].set_ylabel('Species index')
-    ax[1][0].set_ylabel('Species index')
-    plt.tight_layout()
+
+    #3. Plot
+    for index, subplot in enumerate(figure.axes):
+        subplot.imshow(rndws[index][x],vmin=0, vmax=1)
+    figure.suptitle(f"Trajectory of abstractions ({x_(x)})")
+
+def abstraction_sizes(rndws, x):
+    '''
+    In: rndws (list), list of random walks
+        x (string), "a" to plot abstractions of present species
+                    "u" to plot abstractions of active species
+    '''
+
+    # 1. Set up subplots
+    figure, axes = plot.initialize_subplots(len(rndws))
+    plot.xlabel_subplots(figure, axes, 'abstraction size')
+    plot.ylabel_subplots(figure, axes, 'observations')
+
+    #2. Plot
+    for index, subplot in enumerate(figure.axes):
+        m = numpy.transpose(rndws[index][x])
+        n_species = len(rndws[index][x])
+        xp = [x for x in range(n_species+1)]
+        yp = [0 for x in range(n_species+1)]
+        # Count observations
+        for j in range(len(m)):
+            yp[bitarrays.number_of_ones(m[j])] += 1
+        subplot.bar(xp, yp)
+    figure.suptitle(f"Size of abstractions ({x_(x)})")
+
+def plot_hasse(rndws, x, loga=False):
+    '''
+    In: rndws (list), list of random walks
+        x (string), "a" to plot abstractions of present species
+                    "u" to plot abstractions of active species
+        loga (boolean), logarithmic scale on x_axis (recommended for larger number of species
+    '''
+    
+    # 1. Set up subplots
+    figure, axes = plot.initialize_subplots(len(rndws))
+    plot.xlabel_subplots(figure, axes, 'abstraction size')
+    plot.ylabel_subplots(figure, axes, 'observations')
+
+    # 2. Calculate bounderies of the hasse-diamond
+    lb = hasse.lower_bound_diamond(len(rndws[0][x]))
+    ub = hasse.upper_bound_diamond(len(rndws[0][x]))
+
+    # 2. Plot
+    for index, subplot in enumerate(figure.axes):
+        x_, y_ = hasse.positions_on_grid(rndws[index], x)
+        subplot.plot(lb[0], lb[1], color="blue")            # Plots upper boundary of the hasse-diagram
+        subplot.plot(ub[0], ub[1], color="blue")            # Plots upper boundary of the hasse-diagram
+        subplot.fill_between(lb[0], lb[1] ,ub[1])           # Fill the area inbetween
+        subplot.plot(x_,y_,color="red")
+        subplot.get_xaxis().set_visible(False)              #Plots tracectory
+    if(loga):
+        plt.xscale("symlog")
