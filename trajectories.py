@@ -83,4 +83,4 @@ def plot_hasse(rndws, x, loga=False):
         subplot.get_xaxis().set_visible(False)              #Plots tracectory
     if(loga):
         plt.xscale("symlog")
-    figure.suptitle(f"Trajectory of abstractions in hasse_diagramm ({x_(x)})")
+    figure.suptitle(f"Trajectory of abstractions in hasse_diagram ({x_(x)})")
