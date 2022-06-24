@@ -32,7 +32,7 @@ def initialize_subplots(n):
     Initializes and returns a plot with n subplots
     '''
     dim_x, dim_y = dimensions(n)
-    figure, axes = plt.subplots(dim_x, dim_y, sharex=True)
+    figure, axes = plt.subplots(dim_x, dim_y, sharex=True, sharey=True)
     plt.tight_layout()
     return(figure, axes)
 
@@ -52,12 +52,3 @@ def ylabel_subplots(figure, axes, ylabel):
     n_rows = figure.axes[0].get_subplotspec().get_topmost_subplotspec().get_gridspec().get_geometry()[0]
     for row in range(n_rows):
         axes[row][0].set_ylabel(ylabel)
-
-
-
-    
-
-    
-
-
-    
