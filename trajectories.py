@@ -30,7 +30,7 @@ def plot_raw(rndws, x):
     #3. Plot
     for index, subplot in enumerate(figure.axes):
         subplot.imshow(rndws[index][x],vmin=0, vmax=1)
-        set_title(str(index))
+        subplot.set_title(str(index))
     figure.suptitle(f"Trajectory of abstractions ({x_(x)})")
 
 def abstraction_sizes(rndws, x):
@@ -55,7 +55,7 @@ def abstraction_sizes(rndws, x):
         for j in range(len(m)):
             yp[bitarrays.number_of_ones(m[j])] += 1
         subplot.bar(xp, yp)
-        set_title(str(index))
+        subplot.set_title(str(index))
     figure.suptitle(f"Size of abstractions ({x_(x)})")
 
 def plot_hasse(rndws, x, loga=False):
@@ -83,7 +83,7 @@ def plot_hasse(rndws, x, loga=False):
         subplot.fill_between(lb[0], lb[1] ,ub[1])           # Fill the area inbetween
         subplot.plot(x_p,y_p,color="red")
         subplot.get_xaxis().set_visible(False)              #Plots tracectory
-        set_title(str(index))
+        subplot.set_title(str(index))
     if(loga):
         plt.xscale("symlog")
     figure.suptitle(f"Trajectory of abstractions in hasse_diagram ({x_(x)})")
