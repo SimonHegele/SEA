@@ -26,3 +26,32 @@ def lexicographical_position(a):
             if(k==n):
                 break
     return(lex_pos)
+
+# Some set operations
+
+def complement(a):
+    return [(lambda x: 1 if (x==0) else 0)(a[i]) for i in range(len(a))]
+
+def union(a1,a2):
+    return [(lambda x,y: 1 if (x==1 or y==1) else 0)(a1[i],a2[i]) for i in range(len(a1))]
+
+def intersection(a1,a2):
+    return [(lambda x,y: 1 if (x==1 and y==1) else 0)(a1[i],a2[i]) for i in range(len(a1))]
+
+def difference(a1,a2):
+    return [(lambda x,y: 1 if (x==1 and y==0) else 0)(a1[i],a2[i]) for i in range(len(a1))]
+
+def is_subset_of(a1,a2):
+    if number_of_ones(difference(a1,a2))==0:
+        return True
+    return False
+
+def change_simon(a1,a2):
+    na1 = complement(a1)
+    na2 = complement(a2)
+    if number_of_ones(union(a1,a2)) == 0 or number_of_ones(union(na1,na2)) == 0:
+        return 0
+    else:
+        x = number_of_ones(difference(union(a1,a2),intersection(a1,a2)))/number_of_ones(union(a1,a2))
+        y =  number_of_ones(difference(union(na1,na2),intersection(na1,na2)))/number_of_ones(union(na1,na2))
+        return x*y
