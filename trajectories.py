@@ -32,7 +32,41 @@ def plot_raw(rndws, x):
         subplot.imshow(rndws[index][x],vmin=0, vmax=1)
         subplot.set_title(str(index))
     figure.suptitle(f"Trajectory of abstractions ({x_(x)})")
+    
+def plot_movement(rndws, x):
 
+    # 1. Set up subplots
+    figure, axes = plot.initialize_subplots(len(rndws))
+    plot.xlabel_subplots(figure, axes, 'iteration')
+
+     #2. Plot
+    for index, subplot in enumerate(figure.axes):
+        m = numpy.transpose(rndws[index][x])
+        n = len(m[0])
+        # 2.1 Abstraction sizes
+        
+        x = []
+        y = []
+        for i, step in enumerate(m):
+            x.append(i)
+            y.append(Bitarrays.number_of_ones(step)/n)
+        subplot.plot(x,y,label='abstraction size')
+        # 2.2 Changes
+        x = []
+        y = []
+        for i in range(1,len(m)):
+            x.append(i)
+            y.append(Bitarrays.change_simon(m[i],m[i-1]))
+        subplot.plot(x,y, label='change')
+        #2.3 vertical movement
+        x = []
+        y = []
+        for i in range(1,len(m)):
+            x.append(i)
+            y.append((Bitarrays.number_of_ones(m[i])-Bitarrays.number_of_ones(m[i-1]))/n)
+        subplot.plot(x,y, label='vertical movement')
+        subplot.legend()
+        
 def abstraction_sizes(rndws, x):
     '''
     In: rndws (list), list of random walks
