@@ -1,10 +1,8 @@
 import json
-import matrix
 import markov
 import numpy
 import pandas
 import sos
-import time
 
 def transitions_dataframe_from_rndws(rndws, x):
     '''
@@ -104,6 +102,7 @@ def data_from_json(json_path, x, save=False):
     In:  json_path (string),  path to rndw file (json) in the file system
          x         (string),  single character giving the definition of abstraction to be used
          save      (boolean), if True: Stores the dataframes in the same directory as the input file
+    Out: tuple of dataframes abstractions_df, transitions_df
     '''
     if('/' in json_path):
         json_path = json_path.split('/')
@@ -123,16 +122,7 @@ def data_from_json(json_path, x, save=False):
     transitions_df  = add_abstraction_indices_to_transitions_dataframe(abstractions_df, transitions_df)
 
     if(save):
-        transitions_df.to_csv(directory+'/transitions_'+x+file_name+'.csv')
-        abstractions_df.to_csv(directory+'/abstractions_'+x+file_name+'.csv')
+        transitions_df.to_csv(directory+'/transitions_'+x+'_'+file_name+'.csv')
+        abstractions_df.to_csv(directory+'/abstractions_'+x+'_'+file_name+'.csv')
 
-    return (transitions_df)
-    # return (abstractions_df, transitions_df)
-
-path = 'C:/Users/simon/Downloads/rw_n10.json'
-#path = r'C:\Users\simon\OneDrive\Dokumente\Project\pyRN-main\pyRN-main\notebooks\rand_walk10.json'
-
-start = time.time()
-data_from_json(path, 'u', save=True)
-end = time.time()
-print(f'Done in {end-start} seconds')
+    return (abstractions_df, transitions_df)
