@@ -74,13 +74,19 @@ def abstractions_dataframe_from_rndws_and_transitions_dataframe(rndws, x, transi
     
     abstractions_df = pandas.DataFrame({'a': abstractions, '#species': n_species, 'n_init': initials})
 
-    # Check if abstraction is fork (Have transitions to two or more other states been observed?)
-    abstractions_df = abstractions_df.assign(fork=[False for i in range(n)])
+    # Indegree
+    abstractions_df = abstractions_df.assign(indegree=[0 for i in range(n)])
+    for i in range(n):
+        start = abstractions_df.loc[i, 'a']
+        transitions_to_end = transitions_df.loc[transitions_df['a_2']==start]
+        abstractions_df.loc[i, 'indegree']=transitions_to_end.shape[0]
+
+    # Outdegree
+    abstractions_df = abstractions_df.assign(outdegree=[0 for i in range(n)])
     for i in range(n):
         start = abstractions_df.loc[i, 'a']
         transitions_from_start = transitions_df.loc[transitions_df['a_1']==start]
-        if transitions_from_start.loc[transitions_from_start['a_2'] != start].shape[0]>1:
-            abstractions_df.loc[i, 'fork']=True
+        abstractions_df.loc[i, 'outdegree']=transitions_from_start.shape[0]
 
     # Calculate and add markov properties
     abstractions_df = markov.add_markov_properties_to_dataframe(abstractions_df, transitions_df)
