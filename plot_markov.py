@@ -1,4 +1,3 @@
-from dataclasses import replace
 import matplotlib.pyplot
 import networkx
 import pandas
@@ -100,13 +99,13 @@ def create_graph(abstractions_df, transitions_df):
 
     return G
 
-def draw_nodes(G, abstractions_df):
+def draw_nodes(G, abstractions_df, ax):
 
     print('Node legend:')
     print(abstractions_df['a'])
 
     pos=networkx.get_node_attributes(G,'pos')
-    networkx.draw_networkx(G, pos, edgelist=[],node_size=0)
+    networkx.draw_networkx(G, pos, edgelist=[],node_size=0, ax=ax)
 
     nodes = list(G.nodes())
 
@@ -126,32 +125,34 @@ def draw_nodes(G, abstractions_df):
     mss = [scaled_maintainability[i] for i in range(len(nodes)) if (scaled_maintainability[i]<=scaled_reachability[i])]
     rss = [scaled_reachability[i] for i in range(len(nodes)) if (scaled_maintainability[i]>=scaled_reachability[i])]
 
-    networkx.draw_networkx_nodes(G, pos, nodelist=mb, node_size=mbs, node_color="#b000b0", alpha=0.8)
-    networkx.draw_networkx_nodes(G, pos, nodelist=rb, node_size=rbs, node_color="#00ff00", alpha=0.8)
-    networkx.draw_networkx_nodes(G, pos, nodelist=rs, node_size=rss, node_color="#00ff00", alpha=0.8)
-    networkx.draw_networkx_nodes(G, pos, nodelist=ms, node_size=mss, node_color="#b000b0", alpha=0.8)
+    networkx.draw_networkx_nodes(G, pos, nodelist=mb, node_size=mbs, node_color="#b000b0", alpha=0.8, ax=ax)
+    networkx.draw_networkx_nodes(G, pos, nodelist=rb, node_size=rbs, node_color="#00ff00", alpha=0.8, ax=ax)
+    networkx.draw_networkx_nodes(G, pos, nodelist=rs, node_size=rss, node_color="#00ff00", alpha=0.8, ax=ax)
+    networkx.draw_networkx_nodes(G, pos, nodelist=ms, node_size=mss, node_color="#b000b0", alpha=0.8, ax=ax)
 
     line1 = matplotlib.lines.Line2D(range(5), range(5), color="white", marker='o', markerfacecolor="#00ff00")
     line2 = matplotlib.lines.Line2D(range(5), range(5), color="white", marker='o', markerfacecolor="#b000b0")
 
     return (line1, line2)
 
-def draw_subset_relationships(G):
+def draw_subset_relationships(G, ax):
 
     pos=networkx.get_node_attributes(G,'pos')
     subset_relationships = [e for e in list(G.edges(data=True)) if e[2].get('type')=='subset relationship']
-    networkx.draw_networkx_edges(G, pos, edgelist=subset_relationships, edge_color="#0000ff", node_size=0, label='subset_relations', arrowstyle='-')
+    networkx.draw_networkx_edges(G, pos, edgelist=subset_relationships, edge_color="#0000ff", node_size=0, label='subset_relations', arrowstyle='-', ax=ax)
     return matplotlib.lines.Line2D(range(3), range(3), color="white", marker="_", mec="#0000ff", markersize=20)
 
-def draw_transition_probabilities(G):
+def draw_transition_probabilities(G, ax):
 
     pos=networkx.get_node_attributes(G,'pos')
     transitions = [e for e in list(G.edges(data=True)) if e[2].get('type')=='transition']
     probabilities = [e[2].get('probability')*5 for e in transitions]
-    networkx.draw_networkx_edges(G, pos, edgelist=transitions, edge_color="#ff0000", node_size=2500, connectionstyle='arc3, rad = 0.05', width=probabilities, arrowstyle='->')
+    networkx.draw_networkx_edges(G, pos, edgelist=transitions, edge_color="#ff0000", node_size=2500, connectionstyle='arc3, rad = 0.05', width=probabilities, arrowstyle='->', ax=ax)
     return matplotlib.lines.Line2D(range(3), range(3), color="white", marker="_", mec="#ff0000", markersize=20)
 
 def draw_graph(G, abstractions_df):
+    
+    fig, ax = matplotlib.pyplot.subplots()
 
     # Draw nodes with markov properties
     layer1, layer2 = draw_nodes(G, abstractions_df)
@@ -161,20 +162,9 @@ def draw_graph(G, abstractions_df):
 
     # Draw transitions with probability
     layer4 = draw_transition_probabilities(G)
-
+    
+    # Display polt with matplolib.pyplot
+    ax.tick_params(left=True, labelleft=True)
+    ax.set_ylabel('Number of species')
     matplotlib.pyplot.legend((layer1,layer2,layer3, layer4),("Reachability","Maintainability","Subset relationship","Transition (width~probability)"))
     matplotlib.pyplot.show()
-
-x = 'C:/Users/simon/Downloads/'
-abstractions_df = pandas.read_csv(x+'abstractions_urw_n10.json.csv')
-transitions_df  = pandas.read_csv(x+'transitions_urw_n10.json.csv')
-
-
-print(transitions_df.keys())
-
-G = create_graph(abstractions_df, transitions_df)
-draw_graph(G,abstractions_df)
-
-#pos=networkx.get_node_attributes(G,'pos')
-#networkx.draw_networkx(G, pos, edgelist=[],node_size=0)
-#matplotlib.pyplot.show()
