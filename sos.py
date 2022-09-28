@@ -133,12 +133,18 @@ def change_global(a1,a2):
 def change_local(a1,a2):
     if n_elements(union(a1,a2)) == 0:
         return 0
-    return 1-(n_elements(intersection(a1,a2))/n_elements(union(a1,a2)))
+    return n_elements(difference(union(a1,a2),intersection(a1,a2)))/n_elements(union(a1,a2))
 
 def change_max_based(a1,a2):
     if n_elements(union(a1,a2)) == 0:
         return 0
     return(max(n_elements(difference(a1,a2)),n_elements(difference(a2,a1)))/max(n_elements(a1),n_elements(a2)))
+
+def hamming_distance(a1,a2):
+    return n_elements(union(a1,a2))-n_elements(intersection(a1,a2))
+
+def normalized_hamming_distance(a1,a2):
+    return hamming_distance(a1,a2)/len(a1)
 
 def changes(formula, n):
     '''
@@ -152,14 +158,41 @@ def changes(formula, n):
     lst.sort(key=n_elements)
     return [[formula(lst[j],lst[i])**2 for j in range(len(lst))] for i in range(len(lst))]
 
-def sort(list):
-    '''
-    Sorts a list of bitarrays first by lexicographical order and then by number of ones
-    '''
-    all = generate_all(len(list[0])).sort(key=n_elements)
-    sorted_list = []
-    for e1 in all:
-        for e2 in list:
-            if e1 == e2:
-                sorted_list.append(e1)
-    return(sorted_list)
+def check_1(n, change_function):
+    print('\nCheck 1')
+    b = generate_all(n)
+    for x in range(len(b)):
+        if change_function(b[x],b[x]) != 0:
+            print(print(f'd({b[x]},{b[x]}) = {change_function(b[x],b[x])}'))
+            return False
+    for x in range(len(b)):
+        for y in range(x+1,len(b)):
+            if change_function(b[x],b[y]) == 0:
+                print(print(f'd({b[x]},{b[y]}) = {change_function(b[x],b[y])}'))
+                return False
+    return True
+
+def check_2(n, change_function):
+    print('\nCheck 2')
+    b = generate_all(n)
+    for x in range(len(b)):
+        for y in range(len(b)):
+            if change_function(b[x],b[y]) != change_function(b[y],b[x]):
+                return False
+    return True
+
+def check_3(n, change_function):
+    print('\nCheck 3')
+    b = generate_all(n)
+    for x in range(len(b)):
+        for y in range(x,len(b)):
+            for z in range(y,len(b)):
+                if change_function(b[x],b[y])+change_function(b[y],b[z])<change_function(b[x],b[z])-0.00001:
+                    print(f'd({b[x]},{b[y]}) = {change_function(b[x],b[y])}')
+                    print(f'd({b[y]},{b[z]}) = {change_function(b[y],b[z])}')
+                    print(f'd({b[x]},{b[z]}) = {change_function(b[x],b[z])}')
+                    return False
+    return True
+
+def check_metric(n, change_function):
+    return (check_1(n, change_function) and check_2(n, change_function) and check_3(n, change_function))
