@@ -1,6 +1,5 @@
 import numpy
 import copy
-import matrix
 
 def T_inf(T):
     for i in range(10):
