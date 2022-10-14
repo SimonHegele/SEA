@@ -3,8 +3,6 @@ import networkx
 import pandas
 import sos
 
-import matrix
-
 def nodes(G, abstractions_df):
     '''
     In:  G, Empyty directed multigraph networkx object
