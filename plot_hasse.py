@@ -86,6 +86,20 @@ def upper_bound_diamond(n):
     y_left.append(n)
     return([x_left+x_right,y_left+y_right])
 
+def plot_empty_hasse(subplot, n):
+    '''
+    In: n (int), number of species
+    Draws an empty hasse diagramm for n species
+    '''
+    # 1. Calculate bounderies of the hasse-diamond
+    lb = lower_bound_diamond(n)
+    ub = upper_bound_diamond(n)
+
+    # 2. Plot
+    subplot.plot(lb[0], lb[1], color="blue")                # Plots upper boundary of the hasse-diagram
+    subplot.plot(ub[0], ub[1], color="blue")                # Plots upper boundary of the hasse-diagram
+    subplot.fill_between(lb[0], lb[1] ,ub[1], color="blue") # Fill the area inbetween
+
 def plot_hasse(subplot, abstractions, title='', loga=False):
     '''
     In:  subplot (matplotlib.pyplot subplot)
@@ -93,15 +107,8 @@ def plot_hasse(subplot, abstractions, title='', loga=False):
          change_function (function), function that calculates the distance between pairs of abstractions
         loga (boolean), logarithmic scale on x_axis (recommended for larger number of species
     '''
+    plot_empty_hasse(subplot, len(abstractions[0][0]))
     
-    # 1. Calculate bounderies of the hasse-diamond
-    lb = lower_bound_diamond(len(abstractions[0][0]))
-    ub = upper_bound_diamond(len(abstractions[0][0]))
-
-    # 2. Plot
-    subplot.plot(lb[0], lb[1], color="blue")                # Plots upper boundary of the hasse-diagram
-    subplot.plot(ub[0], ub[1], color="blue")                # Plots upper boundary of the hasse-diagram
-    subplot.fill_between(lb[0], lb[1] ,ub[1], color="blue") # Fill the area inbetween
     if len(abstractions)==1:
         x_p, y_p = positions_on_grid(abstractions[0])
         subplot.plot(x_p,y_p,color='red')
