@@ -123,3 +123,44 @@ def plot_hasse(subplot, abstractions, title='', loga=False):
     subplot.set_title(f'{title}\nTrajectory in the hasse-diagramm')
     if(loga):
         subplot.set_xscale("symlog")
+        
+ def plot_hasse_convergence_and_perturbation(subplot, convergent_abstractions, perturbation_abstractions, title='', loga=False):
+    '''
+    In:  subplot (matplotlib.pyplot subplot)
+         abstractions (list), list of binary arrays that represent the abstractions in the random walk
+         change_function (function), function that calculates the distance between pairs of abstractions
+        loga (boolean), logarithmic scale on x_axis (recommended for larger number of species
+    '''
+
+    n = len(convergent_abstractions[0]) # number_of_species
+    s = len(convergent_abstractions)    # number_of_steps
+    
+    # 1. Calculate bounderies of the hasse-diamond
+    lb = lower_bound_diamond(n)
+    ub = upper_bound_diamond(n)
+
+    # 2. Plot
+    subplot.plot(lb[0], lb[1], color="blue")                            # Plots upper boundary of the hasse-diagram
+    subplot.plot(ub[0], ub[1], color="blue")                            # Plots upper boundary of the hasse-diagram
+    subplot.fill_between(lb[0], lb[1] ,ub[1], color="blue", alpha=0.5) # Fill the area inbetween
+    
+    x_pca, y_pca = positions_on_grid(convergent_abstractions)
+    x_ppa, y_ppa = positions_on_grid(perturbation_abstractions)
+
+    # Plot from perturbed to convergent states
+    for i in range(s-1): 
+        subplot.plot([x_ppa[i],x_pca[i+1]],[y_ppa[i],y_pca[i+1]],color='#00ff00')
+    # Plot from convergent to perturbed states
+    for i in range(s-1):  
+        subplot.plot([x_pca[i],x_ppa[i]],[y_pca[i],y_ppa[i]],color='#ff0000')
+
+    line1 = matplotlib.lines.Line2D(range(3), range(3), color="white", marker="_", mec="#00ff00", markersize=20)
+    line2 = matplotlib.lines.Line2D(range(3), range(3), color="white", marker="_", mec="#ff0000", markersize=20)
+
+    subplot.legend((line1,line2),('System dynamics','Perturbations'))
+    
+    subplot.get_xaxis().set_visible(False)
+    subplot.set_ylabel('Number of species')
+    subplot.set_title(f'{title}\nTrajectory in the hasse-diagramm')
+    if(loga):
+        subplot.set_xscale("symlog")
